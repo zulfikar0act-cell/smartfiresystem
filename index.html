@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Fire Fighting App</title>
+    <!-- Memanggil Library Font Awesome untuk Ikon Navigasi Pro -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121214;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Wadah Utama Aplikasi (Ukuran HP) */
+        .app-container {
+            width: 100%;
+            max-width: 412px;
+            height: 100vh;
+            max-height: 892px;
+            background-color: #1a1a1e;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+
+        /* Area Konten Utama Aplikasi */
+        .screen-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            padding-bottom: 90px;
+            position: relative;
+        }
+
+        /* Pengaturan Dasar Screen dengan Efek Transisi Mulus */
+        .screen {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s ease-in-out;
+            height: 100%;
+        }
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+        .screen.fade-in {
+            opacity: 1;
+        }
+
+        @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Mengatur jeda kemunculan biar satu-satu */
+.thesis-card:nth-child(2) { animation-delay: 0.1s; }
+.thesis-card:nth-child(3) { animation-delay: 0.2s; }
+.thesis-card:nth-child(4) { animation-delay: 0.3s; }
+/* ======================== DESAIN KARTU RESEARCH (FIX UNIFIED) ======================== */
+        .thesis-card {
+            background: rgba(255, 255, 255, 0.03); /* Memberikan warna kotak transparan biar gak polosan */
+            border: 1px solid rgba(255, 255, 255, 0.05); /* Garis tepi tipis keliling */
+            border-left: 5px solid #ff4d4d; /* Warna bawaan default, nanti di HTML otomatis ketimpa merah/biru/hijau */
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* Efek bayangan halus biar timbul */
+            animation: fadeInUp 0.5s ease backwards; /* Efek memantul halus pas ganti screen */
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Efek transisi yang smooth */
+        }
+
+        /* EFEK INTERAKTIF: Pas kursor didekatkan */
+        .thesis-card:hover {
+            background: rgba(255, 255, 255, 0.07); /* Kotak jadi sedikit lebih terang */
+            border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-4px); /* Kartu otomatis ngangkat ke atas sedikit */
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); /* Bayangan membesar, efek 3D makin terasa */
+        }
+
+        /* EFEK KLIK DI HP: Merunduk pas disentuh */
+        .thesis-card:active {
+            transform: translateY(-1px) scale(0.99);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* ======================== ANIMASI LOGO KAMPUS MENGALIR ======================== */
+        .logo-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            z-index: 10;
+            transition: all 1.2s cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            animation: logoIntro 1.5s ease-out forwards;
+        }
+        .logo-wrapper img {
+            width: 160px;
+            height: auto;
+        }
+        .logo-wrapper.move-to-top {
+            top: 15%;
+            transform: translate(-50%, 0) scale(0.75);
+        }
+
+        @keyframes logoIntro {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        /* ======================== KONTEN SCREEN 2 ======================== */
+        .main-dashboard-content {
+            opacity: 0;
+            margin-top: 170px;
+            text-align: center;
+            transition: opacity 1s ease-in-out;
+        }
+        .main-dashboard-content.show {
+            opacity: 1;
+        }
+        .academic-sub {
+            font-size: 13px;
+            font-weight: 300;
+            color: #cccccc;
+            letter-spacing: 3px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .app-title {
+            font-size: 26px;
+            font-weight: bold;
+            color: #ff4d4d;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+        .team-box {
+            background: rgba(255,255,255,0.05);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            text-align: left;
+        }
+        .team-box h3 { margin-bottom: 15px; color: #bbb; text-align: center;}
+        .team-member { margin: 10px 0; font-size: 16px; padding-left: 10px; }
+
+        /* ======================== STYLE SCREEN 3 & INDIKATOR BLYNK ======================== */
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            margin-bottom: 15px;
+        }
+        .control-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #aaa;
+            letter-spacing: 1px;
+        }
+        .blynk-status {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            color: #bbb;
+            background: rgba(0,0,0,0.3);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #ff4d4d; /* Default merah (offline) sebelum di-cek */
+            border-radius: 50%;
+            margin-right: 8px;
+            box-shadow: 0 0 8px #ff4d4d;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        .stream-box {
+    width: 100%;
+    height: 240px;           /* Ukuran tinggi ideal di layar HP */
+    min-height: 240px;       /* Mencegah kotak menyusut saat kamera offline */
+    background-color: #000000;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid #ff4d4d;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+        .status-dot.online {
+            background-color: #00e676; /* Hijau jika online */
+            box-shadow: 0 0 8px #00e676;
+        }
+        /* ======================== STYLE MODAL POP-UP DIRECTORY ======================== */
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            z-index: 100;
+            display: none; /* Sembunyikan default */
+            justify-content: center;
+            align-items: flex-end; /* Pop-up meluncur dari bawah ala aplikasi premium */
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        .modal-overlay.show { display: flex; opacity: 1; }
+        
+       
+        
+       /* CSS Baru: Membuat Baris Atas Pengunci Tombol Close */
+        .modal-header-top {
+            width: 100%;
+            display: flex;
+            justify-content: flex-end; /* Memojokkan tombol ke kanan */
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05); /* Garis batas tipis estetik */
+            margin-bottom: 15px;
+        }
+
+        /* Desain Tombol Close Baru yang Lebih Lebar, Aman, dan Pro */
+        .modal-close-btn {
+            background: rgba(255, 77, 77, 0.15);
+            border: none;
+            color: #ff4d4d;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: background 0.2s;
+        }
+        .modal-close-btn:active {
+            background: rgba(255, 77, 77, 0.3);
+        }
+
+        /* ======================== MODAL CONTENT STYLE (SUDAH DISATUKAN) ======================== */
+        /* ======================== FIX STYLE POP-UP MODAL & ANIMASI ======================== */
+        
+        /* 1. Kontainer Utama Modal Content */
+        .modal-content {
+            width: 100%;
+            max-height: 80%;
+            background-color: #1e1e24;
+            border-top-left-radius: 24px;
+            border-top-right-radius: 24px;
+            padding: 20px;
+            padding-top: 16px;
+            position: relative;
+            transform: translateY(100%); /* Menyembunyikan modal di bawah layar saat tertutup */
+            transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Menghilangkan scrollbar putih bawaan Windows */
+        }
+
+        /* 2. PENGGERAK UTAMA POP-UP (Jangan sampai hilang/terhapus wehh) */
+        .modal-overlay.show .modal-content { 
+            transform: translateY(0); /* Memunculkan modal naik ke atas saat kartu diklik */
+        }
+
+        /* 3. Area Scroll Dalam Khusus Isi Biodata & Abstrak */
+        .modal-scroll-area {
+            overflow-y: auto;
+            flex-1: 1;
+            padding-right: 4px;
+        }
+        
+        /* Desain Foto Resmi */
+        .member-photo-wrapper {
+            width: 120px; height: 160px;
+            margin: 10px auto 20px auto;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 3px solid rgba(255,255,255,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+        }
+        .member-photo-wrapper img { width: 100%; height: 100%; object-fit: cover; }
+        
+        /* Desain Tabel Biodata */
+        .biodata-table { width: 100%; margin-bottom: 20px; font-size: 13px; border-collapse: collapse; color: #ddd; }
+        .biodata-table td { padding: 6px 4px; vertical-align: top; }
+        .biodata-table td:first-child { width: 90px; color: #888; font-weight: 500; }
+        .biodata-table td:nth-child(2) { width: 15px; text-align: center; color: #888; }
+        
+        /* Desain Struktur Judul & Abstrak */
+        .modal-thesis-title { font-size: 12px; font-weight: bold; color: #ff4d4d; letter-spacing: 1px; margin-top: 15px; margin-bottom: 5px; text-transform: uppercase; }
+        .modal-thesis-body { font-size: 14px; font-weight: bold; color: #ffffff; line-height: 1.5; margin-bottom: 15px; }
+        .modal-abstract-text { font-size: 13px; color: #bbb; line-height: 1.7; text-align: justify; background: rgba(0,0,0,0.15); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.02); }
+        .thesis-card { cursor: pointer; transition: background 0.2s; }
+        .thesis-card:active { background: rgba(255,255,255,0.08); }
+
+      <div class="stream-box">
+    <img id="liveCamVideo" src="http://192.168.1.59:5000/video_feed" 
+         onerror="document.getElementById('liveCamVideo').style.display='none'; document.getElementById('camOfflineText').style.display='flex';" 
+         style="width: 100%; height: 100%; object-fit: cover; display: block;">
+         
+    <div id="camOfflineText" style="display: none; width: 100%; height: 100%; flex-direction: column; justify-content: center; align-items: center; background-color: #000000; color: #888; font-size: 14px;">
+        <i class="fa-solid fa-video-slash" style="font-size: 28px; color: #ff4d4d; margin-bottom: 12px;"></i>
+        <span>WEBCAM OFFLINE</span>
+    </div>
+</div>
+        .control-group { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.02); }
+        .btn-mode { width: 48%; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.1s; }
+        .btn-mode:active { transform: scale(0.95); }
+        .slider-ui { width: 100%; margin-top: 10px; accent-color: #ff4d4d; }
+
+        /* ======================== STYLE SCREEN 4 ======================== */
+        .screen-title { text-align: center; margin-bottom: 25px; font-size: 20px; letter-spacing: 1px; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; }
+        
+        /* ======================== BOTTOM NAVIGATION BAR PRO ======================== */
+        .nav-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 70px;
+            background-color: #1e1e22;
+            display: none; 
+            justify-content: space-around;
+            align-items: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+            z-index: 20;
+        }
+        .nav-bar.show { display: flex; opacity: 1; }
+        .nav-item { background: none; border: none; color: #666; font-size: 11px; font-weight: 500; cursor: pointer; display: flex; flex-direction: column; align-items: center; width: 25%; transition: color 0.2s; }
+        .nav-item.active { color: #ff4d4d; }
+        .nav-icon { font-size: 18px; margin-bottom: 5px; transition: transform 0.2s; }
+        .nav-item.active .nav-icon { transform: translateY(-2px); }
+
+       /* ======================== CUSTOM SCROLLBAR PREMIUM GLOBAL ======================== */
+        
+        /* 1. Atur lebar lintasan scrollbar secara global agar tipis (6px) */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        
+        /* 2. Atur latar belakang lintasan scrollbar */
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        
+        /* 3. Atur batang geser scrollbar */
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+        
+        /* 4. Efek Hover: Menyala merah tipis saat disentuh */
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 77, 77, 0.5);
+        }
+       /* ======================== STYLE BADGE STATUS INTERAKTIF ======================== */
+        .status-badge {
+            font-size: 10px;
+            font-weight: 500;
+            background: rgba(38, 230, 163, 0.15);
+            color: #26e6a3;
+            padding: 3px 8px;
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .pulse-dot {
+            width: 6px;
+            height: 6px;
+            background: #26e6a3;
+            border-radius: 50%;
+            animation: pulseAnimation 1.5s infinite ease-in-out;
+        }
+        @keyframes pulseAnimation {
+            0% { transform: scale(0.75); opacity: 0.4; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(0.75); opacity: 0.4; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- LOGO KAMPUS MENGALIR -->
+        <div id="movingLogo" class="logo-wrapper">
+            <img src="logo_kampus.png" onerror="this.src='https://placehold.co/200x200/ff4d4d/ffffff?text=UNJANI+LOGO';" alt="Logo Kampus">
+        </div>
+
+        <div class="screen-content">
+            
+            <!-- SCREEN 2: HOME -->
+            <div id="screen2" class="screen active">
+                <div id="dashboardContent" class="main-dashboard-content">
+                    <div class="academic-sub">TUGAS AKHIR</div>
+                    <div class="app-title">SMART FIRE SYSTEM</div>
+                    <div class="academic-sub" style="margin-top: -15px; margin-bottom: 35px;">
+                        TEKNIK ELEKTRO<br>UNIVERSITAS JENDERAL ACHMAD YANI
+                    </div>
+                    <div class="team-box">
+                        <h3>Anggota Kelompok:</h3>
+                        <div class="team-member">1. Zulfikar Al-Ghifari</div>
+                        <div class="team-member">2. Muhammad Faundra Al Gilbran</div>
+                        <div class="team-member">3. Fauzan Muhammad Zahran</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCREEN 3: KONTROL IOT & STREAMING (DENGAN INDIKATOR BLYNK) -->
+            <div id="screen3" class="screen">
+                <div class="control-header">
+                    <div class="control-title">MONITORING & CONTROL SYSTEM</div>
+                    <div class="blynk-status">
+                        <div id="statusDot" class="status-dot"></div>
+                        <span id="statusText">Blynk: Check...</span>
+                    </div>
+                </div>
+
+               <div class="stream-box">
+    <img id="liveCamVideo" src="http://192.168.1.59:5000/video_feed" 
+         onerror="document.getElementById('liveCamVideo').style.display='none'; document.getElementById('camOfflineText').style.display='flex';" 
+         style="width: 100%; height: 100%; object-fit: cover; display: block;">
+         
+    <div id="camOfflineText" style="display: none; width: 100%; height: 100%; flex-direction: column; justify-content: center; align-items: center; background-color: #000000; color: #888; font-size: 14px;">
+        <i class="fa-solid fa-video-slash" style="font-size: 28px; color: #ff4d4d; margin-bottom: 12px;"></i>
+        <span>WEBCAM OFFLINE</span>
+    </div>
+</div>
+
+                <div class="control-group" style="display: flex; justify-content: space-between;">
+                    <button class="btn-mode" style="background-color: #ff4d4d; color: white;" onclick="triggerVibrate(); kirimKeBlynk('V0', 1)">MANUAL</button>
+                    <button class="btn-mode" style="background-color: #4da6ff; color: white;" onclick="triggerVibrate(); kirimKeBlynk('V0', 0)">OTOMATIS</button>
+                </div>
+
+                <div class="control-group">
+                    <label>Servo Pan (V1): <span id="valPan">90</span>°</label>
+                    <input type="range" min="0" max="180" value="90" class="slider-ui" oninput="updateSlider('V1', this.value, 'valPan')" onchange="triggerVibrate()">
+                </div>
+
+                <div class="control-group">
+                    <label>Servo Tilt (V2): <span id="valTilt">90</span>°</label>
+                    <input type="range" min="0" max="180" value="90" class="slider-ui" oninput="updateSlider('V2', this.value, 'valTilt')" onchange="triggerVibrate()">
+                </div>
+
+                <div class="control-group">
+                    <label>Tekanan Pompa (V3): <span id="valPompa">127</span></label>
+                    <input type="range" min="0" max="255" value="127" class="slider-ui" oninput="updateSlider('V3', this.value, 'valPompa')" onchange="triggerVibrate()">
+                </div>
+            </div>
+
+            <!-- SCREEN 4: DAFTAR SKRIPSI -->
+          <div id="screen4" class="screen">
+    <h2 class="screen-title">DAFTAR RESEARCH</h2>
+    
+    <!-- KARTU ZULFIKAR (Garis Pinggir Merah + Status IoT) -->
+    <div class="thesis-card" style="border-left-color: #ff4d4d;" onclick="bukaAbstrak('zulfikar')">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h4>Zulfikar Al-Ghifari</h4>
+            <!-- Tag Status Berkedip -->
+            <span id="status-zulfikar" class="status-badge" style="background: rgba(255, 77, 77, 0.1); color: #ff4d4d;">
+    <span class="pulse-dot" style="background: #ff4d4d; animation: none;"></span> IoT Offline
+</span>
+        </div>
+        <p style="font-size: 13px; color: #aaa; margin-top: 5px;">Rancang Bangun Sistem Pemadam Api Dual-Mode Berbasis Fuzzy Sugeno dan Internet Of Things (IOT) Menggunakan Integrasi Sensor Thermal AMG8833 dan Sensor Jarak JSN-SR04T</p>
+        <span style="font-size: 11px; color: #ff4d4d; display: block; margin-top: 8px;"><i class="fa-solid fa-id-card"></i> Lihat Detail Biodata & Abstrak</span>
+    </div>
+
+    <!-- KARTU FAUNDRA (Garis Pinggir Biru + Status IoT) -->
+    <div class="thesis-card" style="border-left-color: #4da6ff;" onclick="bukaAbstrak('faundra')">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h4>Muhammad Faundra Al Gilbran</h4>
+            <!-- Tag Status Berkedip -->
+            <span id="status-faundra" class="status-badge" style="background: rgba(255, 77, 77, 0.1); color: #ff4d4d;">
+    <span class="pulse-dot" style="background: #ff4d4d; animation: none;"></span> IoT Offline
+</span>
+        </div>
+        <p style="font-size: 13px; color: #aaa; margin-top: 5px;">Implementasi Algoritma You Only Look Once (Yolo)Untuk Verifikasi Objek Api Dan Manusia Sebagai Sistem Keamanan Pada Smart Fire Cannon Berbasis Raspberry Pi 4</p>
+        <span style="font-size: 11px; color: #4da6ff; display: block; margin-top: 8px;"><i class="fa-solid fa-id-card"></i> Lihat Detail Biodata & Abstrak</span>
+    </div>
+
+    <!-- KARTU FAUZAN (Garis Pinggir Hijau + Status IoT) -->
+    <div class="thesis-card" style="border-left-color: #26e6a3;" onclick="bukaAbstrak('fauzan')">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h4>Fauzan Muhammad Zahran</h4>
+            <!-- Tag Status Berkedip -->
+            <span id="status-fauzan" class="status-badge" style="background: rgba(255, 77, 77, 0.1); color: #ff4d4d;">
+    <span class="pulse-dot" style="background: #ff4d4d; animation: none;"></span> IoT Offline
+</span>
+        </div>
+        <p style="font-size: 13px; color: #aaa; margin-top: 5px;">Perancangan Sistem Peringatan Dini dan Notifikasi Bahaya pada Alat Pemadam Api Otomatis Berbasis Internet of Things (IoT)</p>
+        <span style="font-size: 11px; color: #26e6a3; display: block; margin-top: 8px;"><i class="fa-solid fa-id-card"></i> Lihat Detail Biodata & Abstrak</span>
+    </div>
+</div>
+
+<div id="abstrakModal" class="modal-overlay">
+    <div class="modal-content">
+        
+        <div class="modal-header-top">
+            <button class="modal-close-btn" onclick="tutupAbstrak()"><i class="fa-solid fa-xmark"></i> Close</button>
+        </div>
+        
+        <div class="modal-scroll-area">
+            <div class="member-photo-wrapper">
+                <img id="modalFoto" src="" onerror="this.src='https://placehold.co/150x200/333333/ffffff?text=FOTO+RESMI';" alt="Foto Anggota">
+            </div>
+            
+            <table class="biodata-table">
+                <tr><td>NAMA</td><td>:</td><td id="modalNama" style="font-weight: 600;">-</td></tr>
+                <tr><td>NIM</td><td>:</td><td id="modalNim">-</td></tr>
+                <tr><td>TTL</td><td>:</td><td id="modalTtl">-</td></tr>
+                <tr><td>ALAMAT</td><td>:</td><td id="modalAlamat">-</td></tr>
+            </table>
+            
+            <div class="modal-thesis-title">JUDUL SKRIPSI:</div>
+            <div id="modalJudul" class="modal-thesis-body">-</div>
+            <button class="modal-close-btn" style="position:static; background:rgba(255,255,255,0.05); color:#fff; width:auto; height:auto; border-radius:6px; font-size:11px; padding:6px 12px; margin-top:5px;" onclick="salinTeksJudul()">
+    <i class="fa-solid fa-copy"></i> Salin Judul
+</button>
+            
+            <div class="modal-thesis-title">ABSTRAK:</div>
+            <div id="modalAbstrak" class="modal-abstract-text">-</div>
+        </div>
+    </div>
+</div>
+
+        <!-- BOTTOM NAVIGATION BAR DENGAN IKON VEKTOR PRO -->
+        <nav id="navBar" class="nav-bar">
+            <button class="nav-item active" onclick="switchScreen('screen2', this)">
+                <div class="nav-icon"><i class="fa-solid fa-house"></i></div>
+                <div>Home</div>
+            </button>
+            <button class="nav-item" onclick="switchScreen('screen3', this)">
+                <div class="nav-icon"><i class="fa-solid fa-gamepad"></i></div>
+                <div>Control</div>
+            </button>
+            <button class="nav-item" onclick="switchScreen('screen4', this)">
+                <div class="nav-icon"><i class="fa-solid fa-book-bookmark"></i></div>
+                <div>Skripsi</div>
+            </button>
+        </nav>
+    </div>
+
+    <script>
+        const blynkToken = "M0jf9M2-hWgdUQviUYlmHwoZ0S7FcP68";
+
+        // Fitur 2: Efek Getar Masal (Haptic Feedback)
+        function triggerVibrate() {
+            if (navigator.vibrate) {
+                navigator.vibrate(40); // Bergetar halus selama 40 milidetik saat di-klik di HP
+            }
+        }
+
+       // Fitur 1: Cek Status Koneksi Blynk secara Otomatis & Sinkronisasi Badge Skripsi
+function checkBlynkStatus() {
+    // Kita menembak API cek status hardware Blynk
+    const url = `https://sgp1.blynk.cloud/external/api/isHardwareConnected?token=${blynkToken}`;
+    fetch(url)
+        .then(response => response.json())
+        .then(isConnected => {
+            const dot = document.getElementById('statusDot');
+            const text = document.getElementById('statusText');
+            
+            // Ambil elemen badge status dari Screen 4
+            const badgeZulfikar = document.getElementById('status-zulfikar');
+            const badgeFaundra = document.getElementById('status-faundra');
+            const badgeFauzan = document.getElementById('status-fauzan');
+
+            if (isConnected === true) {
+                dot.classList.add('online');
+                text.innerText = "Blynk: Online";
+                text.style.color = "#00e676";
+
+                // SINKRONISASI ONLINE: Mengubah badge di kartu riset jadi Hijau/Biru Aktif Berkedip
+                if(badgeZulfikar) {
+                    badgeZulfikar.style.background = "rgba(38, 230, 163, 0.15)";
+                    badgeZulfikar.style.color = "#26e6a3";
+                    badgeZulfikar.innerHTML = '<span class="pulse-dot"></span> IoT Online';
+                }
+                if(badgeFaundra) {
+                    badgeFaundra.style.background = "rgba(77, 166, 255, 0.15)";
+                    badgeFaundra.style.color = "#4da6ff";
+                    badgeFaundra.innerHTML = '<span class="pulse-dot" style="background: #4da6ff;"></span> IoT Online';
+                }
+                if(badgeFauzan) {
+                    badgeFauzan.style.background = "rgba(38, 230, 163, 0.15)";
+                    badgeFauzan.style.color = "#26e6a3";
+                    badgeFauzan.innerHTML = '<span class="pulse-dot"></span> IoT Online';
+                }
+
+            } else {
+                dot.classList.remove('online');
+                text.innerText = "Blynk: Offline";
+                text.style.color = "#ff4d4d";
+
+                // SINKRONISASI OFFLINE: Mengubah badge di kartu riset jadi Merah Mati (Tidak Berkedip)
+                if(badgeZulfikar) {
+                    badgeZulfikar.style.background = "rgba(255, 77, 77, 0.1)";
+                    badgeZulfikar.style.color = "#ff4d4d";
+                    badgeZulfikar.innerHTML = '<span class="pulse-dot" style="background: #ff4d4d; animation: none;"></span> IoT Offline';
+                }
+                if(badgeFaundra) {
+                    badgeFaundra.style.background = "rgba(255, 77, 77, 0.1)";
+                    badgeFaundra.style.color = "#ff4d4d";
+                    badgeFaundra.innerHTML = '<span class="pulse-dot" style="background: #ff4d4d; animation: none;"></span> IoT Offline';
+                }
+                if(badgeFauzan) {
+                    badgeFauzan.style.background = "rgba(255, 77, 77, 0.1)";
+                    badgeFauzan.style.color = "#ff4d4d";
+                    badgeFauzan.innerHTML = '<span class="pulse-dot" style="background: #ff4d4d; animation: none;"></span> IoT Offline';
+                }
+            }
+        })
+        .catch(err => console.error("Gagal mengambil data Blynk:", err));
+}
+        // Jalankan animasi splash screen di awal
+        window.addEventListener('DOMContentLoaded', () => {
+            const screen2 = document.getElementById('screen2');
+            screen2.style.display = 'flex';
+
+            setTimeout(() => {
+                const movingLogo = document.getElementById('movingLogo');
+                const dashboardContent = document.getElementById('dashboardContent');
+                const navbar = document.getElementById('navBar');
+                
+                movingLogo.classList.add('move-to-top');
+                
+                setTimeout(() => {
+                    dashboardContent.classList.add('show');
+                    navbar.classList.add('show');
+                    screen2.classList.add('fade-in');
+                    // Mulai cek status Blynk setiap 5 detik sekali setelah menu terbuka
+                    checkBlynkStatus();
+                    setInterval(checkBlynkStatus, 5000);
+                }, 400);
+                
+            }, 3000);
+        });
+
+        // Navigasi Mulus Antar-Screen
+        function switchScreen(screenId, btnElement) {
+            const targetScreen = document.getElementById(screenId);
+            const movingLogo = document.getElementById('movingLogo');
+            if (targetScreen.classList.contains('active')) return;
+
+            triggerVibrate(); // Getar halus setiap ganti menu navigasi bawah
+
+            document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.screen').forEach(s => {
+                s.classList.remove('active', 'fade-in');
+                s.style.display = 'none';
+            });
+            
+            btnElement.classList.add('active');
+            targetScreen.style.display = 'flex';
+            targetScreen.classList.add('active');
+
+            setTimeout(() => {
+                targetScreen.classList.add('fade-in');
+            }, 10);
+
+            if (screenId === 'screen2') {
+                movingLogo.style.display = 'flex';
+                movingLogo.style.opacity = '1';
+            } else {
+                movingLogo.style.opacity = '0';
+                movingLogo.style.display = 'none'; 
+            }
+        }
+
+        // Jalur Blynk API
+        function kirimKeBlynk(pin, value) {
+            const url = `https://sgp1.blynk.cloud/external/api/update?token=${blynkToken}&${pin}=${value}`;
+            fetch(url)
+            .then(response => console.log(`Blynk Send: ${pin} -> ${value}`))
+            .catch(error => console.error('Blynk Error:', error));
+        }
+
+        function updateSlider(pin, value, labelId) {
+            document.getElementById(labelId).innerText = value;
+            kirimKeBlynk(pin, value);
+        }
+        // DATABASE DATA ANGGOTA KELOMPOK (Silakan sesuaikan isinya nanti, wehh!)
+        const dataKelompok = {
+            zulfikar: {
+                nama: "ZULFIKAR AL-GHIFARI",
+                nim: "2250011043", // Sesuai NIM kamu
+                ttl: "SUKABUMI, 20 SEPTEMBER 2003",
+                alamat: "PERUM BUMI BABAKAN DAMAI JLN. PATIN, DES. BABAKAN, KAB. SUKABUMI, PROV. JAWA BARAT",
+                judul: "RANCANG BANGUN SISTEM PEMADAM API DUAL-MODE BERBASIS FUZZY SUGENO DAN INTERNET OF THINGS (IOT) MENGGUNAKAN INTEGRASI SENSOR THERMAL AMG8833 DAN SENSOR JARAK JSN-SR04T ",
+                abstrak: "Penelitian Tugas Akhir ini membahas mengenai perancangan sistem Smart Fire Cannon cerdas berbasis Internet of Things (IoT). Dengan mengintegrasikan pembacaan sensor array thermal AMG8833 dan VL53L1X, sistem dioptimasikan menggunakan Algoritma Fuzzy Logic untuk menentukan sudut presisi gerakan aktuator Servo Pan-Tilt serta kalkulasi kuat tekanan PWM pompa air secara otomatis. Melalui visualisasi terpusat ini, penanganan titik api dapat dipantau dari jarak jauh demi efisiensi tinggi penanggulangan kebakaran dini.",
+                foto: "foto_zulfikar.jpg" // Masukkan file foto resmi kamu di folder project nanti
+            },
+            faundra: {
+                nama: "MUHAMMAD FAUNDRA AL GILBRAN",
+                nim: "2250011071",
+                ttl: "SUKABUMI,29 FEBRUARI 2004",
+                alamat: "JL. PELABUHAN II KM.7, DES. BOJONG LOA, KEC. LEMBURSITU, KOTA. SUKABUMI, PROV. JAWA BARAT",
+                judul: "IMPLEMENTASI ALGORITMA YOU ONLY LOOK ONCE (YOLO)UNTUK VERIFIKASI OBJEK API DAN MANUSIA SEBAGAI SISTEM KEAMANAN PADA SMART FIRE CANNON BERBASIS RASPBERRY PI 4",
+                abstrak: "Tuliskan isi paragraf abstrak lengkap milik Faundra di sini. Isi teks ini akan otomatis tampil dalam format justify yang rapi dan memanjang ke bawah menyesuaikan ukuran layar handphone ketika kartu nama milik Faundra di-klik pada aplikasi.",
+                foto: "foto_faundra.jpg"
+            },
+            fauzan: {
+                nama: "FAUZAN MUHAMMAD ZAHRAN",
+                nim: "2250011075",
+                ttl: "GARUT, 01 MARET 2004",
+                alamat: "PERUM CIJATI ASRI BLOK. O, NO. 4, DES. JAYAWARAS, KOTA. GARUT, PROV. JAWA BARAT",
+                judul: "PERANCANGAN SISTEM PERINGATAN DINI DAN NOTIFIKASI BAHAYA PADA ALAT PEMADAM API OTOMATIS BERBASIS INTERNET OF THINGS (IOT)",
+                abstrak: "Tuliskan isi paragraf abstrak lengkap milik Fauzan di sini. Seluruh data identitas akademik mulai dari Foto resmi, Nama, NIM, Tempat Tanggal Lahir, Alamat Rumah, hingga detail substansi metode riset akan tersusun secara presisi.",
+                foto: "foto_fauzan.jpg"
+            }
+        };
+
+        // Fungsi Membuka Pop-up & Mengisi Data Otomatis Sesuai Tombol yang Ditekan
+        function bukaAbstrak(username) {
+            triggerVibrate(); // Berikan efek getar halus saat membuka biodata agar pro!
+            const user = dataKelompok[username];
+            if (!user) return;
+
+            // Suntikkan data dari Database ke dalam Elemen Pop-up HTML
+            document.getElementById('modalFoto').src = user.foto;
+            document.getElementById('modalNama').innerText = user.nama;
+            document.getElementById('modalNim').innerText = user.nim;
+            document.getElementById('modalTtl').innerText = user.ttl;
+            document.getElementById('modalAlamat').innerText = user.alamat;
+            document.getElementById('modalJudul').innerText = user.judul;
+            document.getElementById('modalAbstrak').innerText = user.abstrak;
+
+            // Tampilkan Jendela Pop-up Melayang
+            const modal = document.getElementById('abstrakModal');
+            modal.style.display = 'flex';
+            setTimeout(() => { modal.classList.add('show'); }, 10);
+        }
+
+        // Fungsi Menutup Pop-up Jendela
+        function tutupAbstrak() {
+            triggerVibrate();
+            const modal = document.getElementById('abstrakModal');
+            modal.classList.remove('show');
+            setTimeout(() => { modal.style.display = 'none'; }, 300); // Beri waktu animasi slide-down selesai
+        }
+        function salinTeksJudul() {
+    const judul = document.getElementById('modalJudul').innerText;
+    navigator.clipboard.writeText(judul);
+    alert("Judul skripsi berhasil disalin ke clipboard!");
+}
+// Fungsi efek getar halus untuk HP saat tombol ditekan
+function triggerVibrate() {
+    if (navigator.vibrate) {
+        navigator.vibrate(15); // Menggetarkan HP selama 15 milidetik (halus banget)
+    }
+}
+    </script>
+</body>
+</html>
